@@ -22,9 +22,10 @@ Unlike typical “resume builders” that focus on templates, ResumeForge AI is 
 
 > Put screenshots in `docs/images/` (or update paths).
 
-| New Resume (JD → Tailored Output)         | Cover Letter                                  |
-| ----------------------------------------- | --------------------------------------------- |
-| ![New Resume](docs/images/new-resume.png) | ![Cover Letter](docs/images/cover-letter.png) |
+| New Resume (JD → Tailored Output) | Cover Letter |
+| --- | --- |
+| <img src="docs/images/new-resume.png" width="420" height="560" style="object-fit: cover;" /> | <img src="docs/images/cover-letter.png" width="420" height="560" style="object-fit: cover;" /> |
+
 
 | Profile (Single Source of Truth)    | History (Track Applications)        |
 | ----------------------------------- | ----------------------------------- |
