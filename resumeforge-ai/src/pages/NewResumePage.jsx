@@ -4,7 +4,6 @@ import { supabase } from "../lib/supabaseClient";
 import { useAuthStore } from "../store/useAuthStore";
 import { generateSummaryAndCoverLetter } from "../lib/aiClient";
 
-// ⬇️ updated import
 import {
   Document,
   Packer,
@@ -13,12 +12,6 @@ import {
   AlignmentType,
 } from "docx";
 import jsPDF from "jspdf";
-
-
-console.log(
-  "Gemini key loaded?",
-  import.meta.env.VITE_GEMINI_API_KEY ? "YES" : "NO"
-);
 
 const STOPWORDS = new Set([
   "the",
@@ -954,7 +947,7 @@ export default function NewResumePage() {
           pageWidth - marginX * 2 - 10
         );
   
-        wrapped.forEach((wLine, i) => {
+        wrapped.forEach((wLine) => {
           if (y > 780) {
             doc.addPage();
             y = 60;

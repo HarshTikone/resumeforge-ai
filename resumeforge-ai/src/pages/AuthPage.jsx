@@ -47,7 +47,7 @@ export default function AuthPage() {
         window.location.href = "/dashboard";
       } else {
         // SIGN UP flow
-        const { data, error } = await supabase.auth.signUp({
+        const { error } = await supabase.auth.signUp({
           email,
           password,
         });

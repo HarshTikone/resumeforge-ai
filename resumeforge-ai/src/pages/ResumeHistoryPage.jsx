@@ -1,5 +1,5 @@
 // src/pages/ResumeHistoryPage.jsx
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { useAuthStore } from "../store/useAuthStore";
 
@@ -22,13 +22,8 @@ export default function ResumeHistoryPage() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
-  useEffect(() => {
+  const loadHistory = useCallback(async () => {
     if (!user) return;
-    loadHistory();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
-
-  async function loadHistory() {
     setLoading(true);
     setMessage("");
     const { data, error } = await supabase
@@ -44,7 +39,13 @@ export default function ResumeHistoryPage() {
       setItems(data || []);
     }
     setLoading(false);
-  }
+  }, [user]);
+
+  useEffect(() => {
+    // Fetching remote history is the external synchronization this effect owns.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadHistory();
+  }, [loadHistory]);
 
   return (
     <div className="space-y-4">

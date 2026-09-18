@@ -1,10 +1,6 @@
 // src/lib/aiClient.js
 // Gemini client: summary + full cover letter + optimized bullets for experience & projects
 
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const GEMINI_MODEL =
-  import.meta.env.VITE_GEMINI_MODEL || "gemini-2.0-flash";
-
 export async function generateSummaryAndCoverLetter({
   profile,
   experiences,
@@ -13,13 +9,6 @@ export async function generateSummaryAndCoverLetter({
   companyName,
   jobDescription,
 }) {
-  if (!GEMINI_API_KEY) {
-    console.error("❌ VITE_GEMINI_API_KEY is missing.");
-    throw new Error(
-      "Gemini API key missing. Set VITE_GEMINI_API_KEY in .env.local and restart dev server."
-    );
-  }
-
   // --------- Build header for RESUME & COVER LETTER ----------
   // Resume/Cover letter header we want:
   // Harsh Mahesh Tikone
@@ -202,8 +191,6 @@ Return STRICTLY valid JSON (no explanation text, no code fences) in this shape:
 }
 `.trim();
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
-
   const body = {
     contents: [
       {
@@ -213,9 +200,9 @@ Return STRICTLY valid JSON (no explanation text, no code fences) in this shape:
     ],
   };
 
-  console.log("🔹 Calling Gemini model:", GEMINI_MODEL);
-
-  const res = await fetch(url, {
+  // Gemini is called by Vite's server-side development middleware. The browser
+  // receives neither the API key nor a provider URL containing the key.
+  const res = await fetch("/api/generate", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -224,19 +211,14 @@ Return STRICTLY valid JSON (no explanation text, no code fences) in this shape:
   });
 
   if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    console.error("❌ Gemini API error:", res.status, text);
-    throw new Error(
-      `Gemini API error (${res.status}). Check console/network tab for details.`
-    );
+    const errorBody = await res.json().catch(() => null);
+    throw new Error(errorBody?.error || `Generation failed (${res.status}).`);
   }
 
   const data = await res.json();
-  console.log("✅ Gemini raw response:", data);
 
   let raw = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
   raw = raw.trim();
-  console.log("🔹 Gemini raw text:", raw);
 
   // Strip ```json fences if any
   if (raw.startsWith("```")) {
@@ -256,9 +238,9 @@ Return STRICTLY valid JSON (no explanation text, no code fences) in this shape:
   try {
     parsed = JSON.parse(raw);
   } catch (err) {
-    console.error("❌ Failed to parse Gemini JSON:", err, raw);
+    console.error("Gemini returned malformed JSON.", err);
     throw new Error(
-      "Gemini responded, but the JSON was malformed. Check 'Gemini raw text' in the console to debug."
+      "Gemini responded, but the generated document was malformed. Please retry."
     );
   }
 

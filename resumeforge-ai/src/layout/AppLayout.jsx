@@ -1,5 +1,5 @@
 import { Outlet, NavLink, Navigate } from "react-router-dom";
-import { useEffect } from "react";
+import { createElement, useEffect } from "react";
 import {
   FileText,
   User,
@@ -70,7 +70,7 @@ export default function AppLayout() {
                 }`
               }
             >
-              <Icon size={16} />
+              {createElement(Icon, { size: 16 })}
               <span>{label}</span>
             </NavLink>
           ))}

@@ -2,6 +2,9 @@
 
 ![ResumeForge AI Banner](docs/images/banner.png)
 
+![Deployment](https://img.shields.io/badge/deployment-local--only-59636e)
+![Gemini key](https://img.shields.io/badge/Gemini_key-server--side-1a7f37)
+
 An **AI-first resume & cover-letter generator** that uses **Google Gemini** to turn your structured profile into an ATS-friendly, role-targeted application package.
 
 Unlike typical “resume builders” that focus on templates, ResumeForge AI is built around an **LLM workflow**:
@@ -15,12 +18,12 @@ Unlike typical “resume builders” that focus on templates, ResumeForge AI is 
 
 ## Demo
 
-* Live demo: (add link)
-* 60–90 sec walkthrough: (add link)
+**Deployment status: local-only.** The current secure Gemini integration uses a Vite
+development-server proxy, so this repository intentionally does not claim a public deployment.
+The screenshots below show the implemented workflow. A hosted version requires moving the same
+`/api/generate` handler to a serverless function or backend service.
 
 ## Screenshots
-
-> Put screenshots in `docs/images/` (or update paths).
 
 | New Resume (JD → Tailored Output) | Cover Letter |
 | --- | --- |
@@ -108,7 +111,7 @@ Profile (truth) ─► Relevance Ranker ─► Selected experiences/projects/ski
 * **UI:** Tailwind CSS
 * **State:** Zustand (`src/store`)
 * **Auth + Database:** Supabase (`src/lib/supabaseClient.js`)
-* **LLM Provider:** **Google Gemini** (via `src/lib/aiClient.js`)
+* **LLM Provider:** **Google Gemini** through a server-only Vite development proxy
 
 ---
 
@@ -117,7 +120,7 @@ Profile (truth) ─► Relevance Ranker ─► Selected experiences/projects/ski
 ```txt
 src/
   lib/
-    aiClient.js            # Gemini client wrapper (prompting + request plumbing)
+    aiClient.js            # same-origin client for the secure /api/generate route
     supabaseClient.js      # Auth + database
   pages/
     AuthPage.jsx
@@ -133,6 +136,7 @@ src/
     useAuthStore.js
   App.jsx
   main.jsx
+vite.config.js             # server-only Gemini proxy for local development
 ```
 
 ---
@@ -161,12 +165,9 @@ Create a `.env.local` file in the project root.
 VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-# Gemini (recommended: keep keys server-side; see Security Notes)
+# Gemini — server-only; never prefix these with VITE_
 GEMINI_API_KEY=your_gemini_api_key
-GEMINI_MODEL=gemini-1.5-flash
-
-# If you call a backend proxy instead of calling Gemini directly:
-VITE_AI_API_BASE_URL=http://localhost:8080
+GEMINI_MODEL=gemini-2.0-flash
 ```
 
 ### Run
@@ -181,7 +182,12 @@ Open: [http://localhost:5173](http://localhost:5173)
 
 ## Security Notes (Important)
 
-* **Do not expose Gemini keys in the browser.** If you are currently calling Gemini directly from the frontend, switch to a backend proxy (serverless function / Express / FastAPI) so secrets stay server-side.
+* The browser calls only the same-origin `/api/generate` route. `GEMINI_API_KEY` is read by
+  `vite.config.js` on the server and is never included in the frontend bundle or request URL.
+* `.env`, `.env.local`, and dependency/build directories are ignored by Git. Only
+  `.env.example` is committed.
+* Before a public deployment, move the proxy handler to a protected serverless function or backend;
+  a static Vite deployment alone cannot safely hold the Gemini key.
 * Resume data is sensitive — treat logs and stored data carefully.
 
 ---
@@ -211,5 +217,5 @@ If you want to formalize quality:
 
 **Harsh Mahesh Tikone**
 
-* LinkedIn: (add link)
-* GitHub: (add link)
+* [LinkedIn](https://www.linkedin.com/in/harshtikone/)
+* [GitHub](https://github.com/HarshTikone)
